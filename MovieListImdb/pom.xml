@@ -13,6 +13,16 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+      
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+                
+                <descriptorRefs>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                </descriptorRefs>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -25,6 +35,8 @@
   		<groupId>ca.movielist</groupId>
   		<artifactId>MovieListCore</artifactId>
   		<version>0.0.1</version>
+  		<scope>system</scope>
+  		<systemPath>${basedir}/../MovieListCore/target/MovieListCore-0.0.1.jar</systemPath>
   	</dependency>
   	<dependency>
   		<groupId>com.fasterxml.jackson.core</groupId>

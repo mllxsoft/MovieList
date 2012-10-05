@@ -14,6 +14,19 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+        <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+                <archive>
+                    <manifest>
+                        <mainClass>ca.movielist.MvcImplementation.EntryPoint</mainClass>
+                    </manifest>
+                </archive>
+                <descriptorRefs>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                </descriptorRefs>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -21,11 +34,15 @@
   		<groupId>ca.movielist</groupId>
   		<artifactId>MovieListCore</artifactId>
   		<version>0.0.1</version>
+  		<scope>system</scope>
+  		<systemPath>${basedir}/../MovieListCore/target/MovieListCore-0.0.1.jar</systemPath>
   	</dependency>
   	<dependency>
   		<groupId>ca.movielist</groupId>
   		<artifactId>MovieListImdb</artifactId>
   		<version>0.0.1</version>
+  		<scope>system</scope>
+  		<systemPath>${basedir}/../MovieListImdb/target/MovieListImdb-0.0.1.jar</systemPath>
   	</dependency>
   </dependencies>
 </project>
