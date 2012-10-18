@@ -2,8 +2,6 @@ package ca.movielist.core.imdb.test;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
 import org.junit.After;
@@ -28,7 +26,7 @@ public class MovieLookupImdbTest {
 		}
 		
 		@Override
-		public String fetchContent(URL url) {
+		public String fetchStringContent(URL url) {
 			return mockContent;
 		}
 	}
@@ -61,7 +59,7 @@ public class MovieLookupImdbTest {
 	public void testLookupInformations() {
 		if (lookup == null) 
 			testMovieLookupImdb();
-		
+		// TODO the two passes should be separated into to lookup class
 		lookup.lookupInformations(movie_1);
 		
 		assertFalse(movie_1.getRating() == -1);

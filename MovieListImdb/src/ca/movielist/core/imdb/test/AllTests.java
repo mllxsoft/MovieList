@@ -5,7 +5,12 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ MovieImdbTest.class, MovieListImdbTest.class, UrlBuilderImdbTest.class, MovieLookupImdbTest.class})
+@SuiteClasses({ MovieImdbTest.class, 
+	MovieListImdbTest.class, 
+	UrlBuilderDeanClatWorthyTest.class, 
+	UrlBuilderOmdbApiTest.class,
+	MovieLookupImdbTest.class,
+	ContentFetcherTest.class})
 public class AllTests {
 
 }

@@ -4,6 +4,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -21,6 +23,7 @@ public class MovieListImdb implements MovieList {
 	public void addMovie(Movie movie) {
 		// TODO Auto-generated method stub
 		movies.add(movie);
+		sortByRating();
 	}
 
 	@Override
@@ -35,9 +38,10 @@ public class MovieListImdb implements MovieList {
 		MovieImdb movie = null;
 		Iterator<Movie> it = movies.iterator();
 		while(it.hasNext()) {
-			movie = (MovieImdb)it.next();
-			if(movie.getName() != null) {
-				if(movie.getName().equals(name)) {
+			MovieImdb movie2 = (MovieImdb)it.next();
+			if(movie2.getName() != null) {
+				if(movie2.getName().equals(name)) {
+					movie = movie2;
 					break;
 				}
 			}
@@ -89,7 +93,7 @@ public class MovieListImdb implements MovieList {
 	
 		try {
 			CSVReader reader = new CSVReader(new FileReader(filepath));
-			
+			movies.clear();
 		    String [] nextLine;
 		    while ((nextLine = reader.readNext()) != null) {
 		        // nextLine[] is an array of values from the line
@@ -136,4 +140,16 @@ public class MovieListImdb implements MovieList {
         Iterator<Movie> iMovie = movies.iterator();
         return iMovie; 
     }
+	
+	public class MovieComparable implements Comparator<Movie>{
+		 
+	    @Override
+	    public int compare(Movie movie1, Movie movie2) {
+	        return (movie1.getRating()>movie2.getRating() ? -1 : (movie1.getRating()==movie2.getRating() ? 0 : 1));
+	    }
+	}
+	
+	public void sortByRating() {
+		Collections.sort(movies, new MovieComparable());
+	}
 }

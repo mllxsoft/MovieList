@@ -1,16 +1,7 @@
 package ca.movielist.MvcImplementation;
 
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Observable;
-
-import javax.swing.ListModel;
 import javax.swing.event.EventListenerList;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
-
 import ca.movielist.core.Movie;
 import ca.movielist.core.imdb.*;
 
@@ -56,6 +47,7 @@ public class MovieModel extends MovieListImdb {
 		fireMovieListChanged();
 		System.out.println("MODEL: removeMovie...");
 	}
+	
 	
 	@Override
 	public void LoadMovies(String filepath) {

@@ -1,15 +1,10 @@
 package ca.movielist.core.imdb;
 
-import java.io.Serializable;
 import java.net.URL;
 
 import ca.movielist.core.Movie;
 // TODO rename to Imdb
-public class MovieImdb implements Movie, Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class MovieImdb implements Movie {
 	
 	protected String name;
 	private float rating = -1;
@@ -18,6 +13,8 @@ public class MovieImdb implements Movie, Serializable {
 	private String genre = "";
 	private String id = "";
 	private URL imdbUrl = null;
+	private URL imageUrl = null;
+	private String imagePath = "";
 	
 	public MovieImdb(String name) { // TODO redefine where movie and movie imdb differs...
 		this.setName(name);
@@ -88,5 +85,21 @@ public class MovieImdb implements Movie, Serializable {
 	@Override
 	public String getGenre() {
 		return genre;
+	}
+	
+	public URL getImageUrl() {
+		return imageUrl;
+	}
+	
+	public void setImageUrl(URL imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+	
+	public String getImagePath() {
+		return imagePath;
+	}
+	
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
 	}
 }

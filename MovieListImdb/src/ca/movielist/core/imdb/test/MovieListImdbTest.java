@@ -122,4 +122,9 @@ public class MovieListImdbTest {
 		assertEquals(movieNames[1], referenceName_remove);
 	}
 
+	@Test
+	public void testContainsMovie() {
+		assertTrue(movieList_static.containMovie(referenceName_add));
+		assertFalse(movieList_static.containMovie("noname"));
+	}
 }

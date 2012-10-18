@@ -1,9 +1,6 @@
 package ca.movielist.MvcImplementation;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.util.Iterator;
+import javax.swing.JOptionPane;
 
 import ca.movielist.core.Movie;
 import ca.movielist.core.imdb.MovieImdb;
@@ -14,6 +11,8 @@ public class MovieListController {
 	private MovieListView view = null;
 	private MovieModel model = null;
 	private MovieLookupImdb lookup = null;
+	
+	private boolean dirtyChange = false;
 	
 	public MovieListController(MovieModel model) {
 		// Keep a reference on the model
@@ -28,18 +27,46 @@ public class MovieListController {
 		model.addListDataListener(this.view);
 	}
 	
+	public void logMessage(String message) {
+		System.out.println(message);
+		this.view.appendLineToStatus(message);
+	}
+	
 	public void removeMovie(String name) {
-		System.out.println("Controller remove movie..." + name);
+		logMessage("Remove movie: " + name);
 		
 		Movie movieToRemove = model.getMovie(name);
 		if(movieToRemove != null) {
 			model.removeMovie(movieToRemove);
+			logMessage("      -> Movie removed!");
+			dirtyChange = true;
 		}
 	}
 
+	private class MovieLookupJob implements Runnable {
+
+		private Movie movie;
+		
+		public MovieLookupJob(Movie movieToLookup) {
+			this.movie = movieToLookup;
+		}
+		
+		@Override
+		public void run() {
+			lookup.lookupInformations(movie);
+			// TODO Auto-generated method stub
+			if(!model.containMovie(movie.getName())) {
+				model.addMovie(movie);
+				logMessage("      -> Movie added!");
+			} else {
+				model.fireMovieListChanged();
+			}
+		}
+	}
+	
 	// Search button is pressed
 	public void searchMovie(String name) {
-		System.out.println("Controller search movie..." + name);
+		logMessage("Search movie: " + name);
 		
 		// add / search a new movie TODO
 		MovieImdb newMovie = new MovieImdb(name);
@@ -54,7 +81,7 @@ public class MovieListController {
 				newMovie.setName(name.substring(0, pos-1) + name.substring(pos+4));
 				newMovie.setYear(year);
 			} catch (Exception e) {
-				System.out.println("No 19xx date found");
+				logMessage("      -> No 19xx date found");
 			}
 		}
 
@@ -67,20 +94,21 @@ public class MovieListController {
 				newMovie.setName(name.substring(0, pos-1) + name.substring(pos+4));
 				newMovie.setYear(year);
 			} catch (Exception e) {
-				System.out.println("No 20xx date found");
+				logMessage("      -> No 20xx date found");
 			}
 		}
 		
 		// TODO Launch this process in a separate thread
-		lookup.lookupInformations(newMovie);
+		new Thread(new MovieLookupJob(newMovie)).start();
 		
-		this.model.addMovie(newMovie);
+		dirtyChange = true;
 	}
 	
 	public void browseMovie(String name) {
 		try {
 			MovieImdb movieImdb = (MovieImdb)model.getMovie(name);
 			java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+			logMessage("Browsing url: " +movieImdb.getUrl().toURI());
 		    desktop.browse( movieImdb.getUrl().toURI() );
 		}
 		catch ( Exception e ) {
@@ -88,42 +116,89 @@ public class MovieListController {
 		}
 	}
 	
-	public void exportToCsv() {
-		Iterator<Movie> iterator = model.iterator();
+	private TorrentZUrlBuilder urlBuilder = new TorrentZUrlBuilder(); 
+	public void torrentMovie(String name) {
 		
 		try {
-			FileWriter outFile = new FileWriter("Backup.csv");
-			PrintWriter out = new PrintWriter(outFile);
-
-			out.println("name, year, rating, id, url");
-			
-			while(iterator.hasNext()) {
-				MovieImdb movie = (MovieImdb) iterator.next();	
-
-				out.print(movie.getName());
-				out.print(",");
-				out.print(movie.getYear());
-				out.print(",");
-				out.print(movie.getRating());
-				out.print(",");
-				out.print(movie.getId());
-				out.print(",");
-				out.println(movie.getUrl());
-			}			
-			out.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+			MovieImdb movieImdb = (MovieImdb)model.getMovie(name);
+			java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+			logMessage("Browsing url: " + urlBuilder.buildUrl(movieImdb).toURI());
+			desktop.browse( urlBuilder.buildUrl(movieImdb).toURI() );
+		}
+		catch ( Exception e ) {
+			System.err.println( e.getMessage() );
 		}
 	}
 	
+	public void refreshMovie(String name) {
+		
+		try {
+			MovieImdb movieImdb = (MovieImdb)model.getMovie(name);
+			logMessage("Refresh movie information: " + name);
+			lookup.lookupInformations(movieImdb);
+		}
+		catch ( Exception e ) {
+			System.err.println( e.getMessage() );
+		}
+	}
+	
+	private String currentFilename = "application_db.data";
+	
 	public void displayView() {
-		this.model.LoadMovies("application_db.data");
+		String newFilename = this.view.chooseFile();
+		if(!newFilename.isEmpty()) {
+			currentFilename = newFilename;
+		}
+		logMessage("Loading database: " + currentFilename);
+		this.model.LoadMovies(currentFilename);
 		view.display();		
 	}
 	
+	public void saveAs() {
+		String newFilename = this.view.chooseFile();
+		if(!newFilename.isEmpty() && !newFilename.equals(currentFilename)) {
+			currentFilename = newFilename;
+			logMessage("Saving database: " + currentFilename);
+			this.model.SaveMovies(currentFilename);
+			this.dirtyChange = false;
+		}
+	}
+	
+	public void openOther() {
+		if(dirtyChange) {	
+			int answer = this.view.askConfirmation(currentFilename);
+			if(answer == JOptionPane.YES_OPTION) {
+				logMessage("Saving database: " + currentFilename);
+				this.model.SaveMovies(currentFilename);
+			} else if(answer == JOptionPane.CANCEL_OPTION) {
+				return;
+			} else {
+				// NO_OPTION, DO NOTHING
+			}
+		}
+		
+		String newFilename = this.view.chooseFile();
+		if(!newFilename.isEmpty() && !newFilename.equals(currentFilename)) {
+			currentFilename = newFilename;
+			logMessage("Loading new database: " + currentFilename);
+			this.model.LoadMovies(currentFilename);
+		}
+		this.dirtyChange = false;
+	}
+	
 	public void exitApp() {
-		this.model.SaveMovies("application_db.data");
-		exportToCsv();
-		System.exit(0);
+		if(dirtyChange) {	
+			int answer = this.view.askConfirmation(currentFilename);
+			if(answer == JOptionPane.YES_OPTION) {
+				logMessage("Saving database to: " + currentFilename);
+				this.model.SaveMovies(currentFilename);
+				System.exit(0);
+			} else if(answer == JOptionPane.NO_OPTION) {
+				System.exit(0);
+			}
+		} else {
+			// TODO else ask for exit confirmation without saving
+			System.exit(0);
+		}
 	}
 }
