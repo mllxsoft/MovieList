@@ -10,7 +10,7 @@ public class EntryPoint {
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-            	MovieModel model = new MovieModel(); // TODO arenge this better...
+            	MovieModel model = new MovieModel(); // TODO that sucks
                 MovieListController controller = new MovieListController(model);
                 controller.displayView();
             }

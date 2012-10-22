@@ -156,8 +156,11 @@ public class MovieListController {
 	
 	public void saveAs() {
 		String newFilename = this.view.chooseFile();
-		if(!newFilename.isEmpty() && !newFilename.equals(currentFilename)) {
-			currentFilename = newFilename;
+		if(!newFilename.isEmpty()) {
+			if(!newFilename.equals(currentFilename)) {
+				currentFilename = newFilename;
+			}
+			
 			logMessage("Saving database: " + currentFilename);
 			this.model.SaveMovies(currentFilename);
 			this.dirtyChange = false;

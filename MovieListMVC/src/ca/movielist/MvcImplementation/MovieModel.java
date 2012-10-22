@@ -5,14 +5,11 @@ import javax.swing.event.EventListenerList;
 import ca.movielist.core.Movie;
 import ca.movielist.core.imdb.*;
 
-// TODO devrais hériter de listmodel ou simplement contenir des listeners ?
 public class MovieModel extends MovieListImdb {
 	
 	public MovieModel() {
 		System.out.println("MovieModel()");
-		
 		listeners = new EventListenerList();
-		// movieList.load()...
 	}
 
 	private EventListenerList listeners;
